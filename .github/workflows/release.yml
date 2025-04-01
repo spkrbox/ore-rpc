@@ -66,6 +66,18 @@ jobs:
             - name: Install app dependencies
               run: pnpm install
 
+            - name: Update Tauri Config Version
+              run: |
+                  VERSION="${{ github.ref_name }}"
+                  VERSION="${VERSION#v}"
+                  echo "Setting version to $VERSION"
+
+                  sed -i.bak "s/version = \"0.1.0\"/version = \"$VERSION\"/" src-tauri/Cargo.toml
+
+                  sed -i.bak "s/\"version\": \"0.1.0\"/\"version\": \"$VERSION\"/" src-tauri/tauri.conf.json
+
+                  sed -i.bak "s/\"version\": \"0.1.0\"/\"version\": \"$VERSION\"/" package.json
+
             - name: Build the app
               run: pnpm run tauri build
 
@@ -80,6 +92,8 @@ jobs:
         needs: build
         runs-on: ubuntu-latest
         steps:
+            - uses: actions/checkout@v3
+
             - name: Download all artifacts
               id: download
               uses: actions/download-artifact@v4
@@ -90,54 +104,17 @@ jobs:
             - name: List downloaded artifacts
               run: ls -la ./artifacts
 
-            - name: Create Release
-              id: create_release
-              uses: actions/create-release@v1
+            - name: Create Release and Upload Assets
+              uses: softprops/action-gh-release@v1
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                  tag_name: ${{ github.ref }}
-                  release_name: Release ${{ github.ref_name }}
+                  tag_name: ${{ github.ref_name }}
+                  name: Release ${{ github.ref_name }}
                   draft: false
                   prerelease: false
-
-            - name: Upload macOS ARM64 Asset
-              uses: actions/upload-release-asset@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: ./artifacts/Ore Presence_0.1.0_aarch64.dmg
-                  asset_name: ore-presence-${{ github.ref_name }}-macos-arm64.dmg
-                  asset_content_type: application/x-apple-diskimage
-
-            - name: Upload macOS Intel Asset
-              uses: actions/upload-release-asset@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: ./artifacts/Ore Presence_0.1.0_x64.dmg
-                  asset_name: ore-presence-${{ github.ref_name }}-macos-intel.dmg
-                  asset_content_type: application/x-apple-diskimage
-
-            - name: Upload Windows Asset
-              uses: actions/upload-release-asset@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: ./artifacts/Ore Presence_0.1.0_x64_en-US.msi
-                  asset_name: ore-presence-${{ github.ref_name }}-windows.msi
-                  asset_content_type: application/x-msi
-
-            - name: Upload Linux Asset
-              if: ${{ contains(join(steps.download.outputs.download-path, ' '), '.AppImage') }}
-              uses: actions/upload-release-asset@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: ./artifacts/Ore Presence_0.1.0_amd64.AppImage
-                  asset_name: ore-presence-${{ github.ref_name }}-linux.AppImage
-                  asset_content_type: application/x-appimage
+                  files: |
+                      ./artifacts/Ore Presence_${{ github.ref_name }}_aarch64.dmg
+                      ./artifacts/Ore Presence_${{ github.ref_name }}_x64.dmg
+                      ./artifacts/Ore Presence_${{ github.ref_name }}_x64_en-US.msi
+                      ./artifacts/Ore Presence_${{ github.ref_name }}_amd64.AppImage

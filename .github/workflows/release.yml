@@ -10,7 +10,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                platform: [macos-latest, windows-latest]
+                platform: [macos-latest, windows-latest, ubuntu-latest]
                 include:
                     - platform: macos-latest
                       output_name: Ore Presence_${{ github.ref_name }}_macos.dmg
@@ -22,6 +22,11 @@ jobs:
                       asset_path: src-tauri/target/release/bundle/msi/*.msi
                       asset_name: ore-presence-${{ github.ref_name }}-windows.msi
                       content_type: application/x-msi
+                    - platform: ubuntu-latest
+                      output_name: Ore Presence_${{ github.ref_name }}_linux.AppImage
+                      asset_path: src-tauri/target/release/bundle/appimage/*.AppImage
+                      asset_name: ore-presence-${{ github.ref_name }}-linux.AppImage
+                      content_type: application/x-appimage
 
         runs-on: ${{ matrix.platform }}
         steps:
@@ -41,7 +46,7 @@ jobs:
               uses: dtolnay/rust-toolchain@stable
 
             - name: Install dependencies (ubuntu only)
-              if: matrix.platform == 'ubuntu-20.04'
+              if: matrix.platform == 'ubuntu-latest'
               run: |
                   sudo apt-get update
                   sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
@@ -57,7 +62,7 @@ jobs:
               with:
                   name: ${{ matrix.asset_name }}
                   path: ${{ matrix.asset_path }}
-                  compression-level: 0
+                  compression-level: 0 # Use no compression for binaries
 
     create-release:
         needs: build
@@ -66,6 +71,7 @@ jobs:
             - name: Download all artifacts
               uses: actions/download-artifact@v4
               with:
+                  # Remove the pattern filter to download all artifacts
                   merge-multiple: true
                   path: ./artifacts
 
@@ -102,3 +108,13 @@ jobs:
                   asset_path: ./artifacts/ore-presence-${{ github.ref_name }}-windows.msi/Ore Presence_${{ github.ref_name }}_x64_en-US.msi
                   asset_name: ore-presence-${{ github.ref_name }}-windows.msi
                   asset_content_type: application/x-msi
+
+            - name: Upload Linux Asset
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: ./artifacts/ore-presence-${{ github.ref_name }}-linux.AppImage/Ore Presence_${{ github.ref_name }}_amd64.AppImage
+                  asset_name: ore-presence-${{ github.ref_name }}-linux.AppImage
+                  asset_content_type: application/x-appimage

@@ -5,6 +5,9 @@ on:
             - 'v*'
     workflow_dispatch:
 
+permissions:
+    contents: write
+
 jobs:
     build:
         strategy:
@@ -62,16 +65,16 @@ jobs:
               with:
                   name: ${{ matrix.asset_name }}
                   path: ${{ matrix.asset_path }}
-                  compression-level: 0 # Use no compression for binaries
+                  compression-level: 0
 
     create-release:
         needs: build
         runs-on: ubuntu-latest
         steps:
             - name: Download all artifacts
+              id: download
               uses: actions/download-artifact@v4
               with:
-                  # Remove the pattern filter to download all artifacts
                   merge-multiple: true
                   path: ./artifacts
 
@@ -95,7 +98,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: ./artifacts/ore-presence-${{ github.ref_name }}-macos.dmg/Ore Presence_${{ github.ref_name }}_x64.dmg
+                  asset_path: ./artifacts/Ore Presence_0.1.0_aarch64.dmg
                   asset_name: ore-presence-${{ github.ref_name }}-macos.dmg
                   asset_content_type: application/x-apple-diskimage
 
@@ -105,16 +108,17 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: ./artifacts/ore-presence-${{ github.ref_name }}-windows.msi/Ore Presence_${{ github.ref_name }}_x64_en-US.msi
+                  asset_path: ./artifacts/Ore Presence_0.1.0_x64_en-US.msi
                   asset_name: ore-presence-${{ github.ref_name }}-windows.msi
                   asset_content_type: application/x-msi
 
             - name: Upload Linux Asset
+              if: ${{ contains(join(steps.download.outputs.download-path, ' '), '.AppImage') }}
               uses: actions/upload-release-asset@v1
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: ./artifacts/ore-presence-${{ github.ref_name }}-linux.AppImage/Ore Presence_${{ github.ref_name }}_amd64.AppImage
+                  asset_path: ./artifacts/Ore Presence_0.1.0_amd64.AppImage
                   asset_name: ore-presence-${{ github.ref_name }}-linux.AppImage
                   asset_content_type: application/x-appimage

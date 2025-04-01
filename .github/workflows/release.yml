@@ -13,23 +13,32 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                platform: [macos-latest, windows-latest, ubuntu-latest]
+                platform: [macos-14, macos-13, windows-latest, ubuntu-latest]
                 include:
-                    - platform: macos-latest
-                      output_name: Ore Presence_${{ github.ref_name }}_macos.dmg
+                    - platform: macos-14
+                      output_name: Ore Presence_${{ github.ref_name }}_macos_arm64.dmg
                       asset_path: src-tauri/target/release/bundle/dmg/*.dmg
-                      asset_name: ore-presence-${{ github.ref_name }}-macos.dmg
+                      asset_name: ore-presence-${{ github.ref_name }}-macos-arm64.dmg
                       content_type: application/x-apple-diskimage
+                      arch: arm64
+                    - platform: macos-13
+                      output_name: Ore Presence_${{ github.ref_name }}_macos_x64.dmg
+                      asset_path: src-tauri/target/release/bundle/dmg/*.dmg
+                      asset_name: ore-presence-${{ github.ref_name }}-macos-intel.dmg
+                      content_type: application/x-apple-diskimage
+                      arch: x64
                     - platform: windows-latest
                       output_name: Ore Presence_${{ github.ref_name }}_windows.msi
                       asset_path: src-tauri/target/release/bundle/msi/*.msi
                       asset_name: ore-presence-${{ github.ref_name }}-windows.msi
                       content_type: application/x-msi
+                      arch: x64
                     - platform: ubuntu-latest
                       output_name: Ore Presence_${{ github.ref_name }}_linux.AppImage
                       asset_path: src-tauri/target/release/bundle/appimage/*.AppImage
                       asset_name: ore-presence-${{ github.ref_name }}-linux.AppImage
                       content_type: application/x-appimage
+                      arch: x64
 
         runs-on: ${{ matrix.platform }}
         steps:
@@ -48,12 +57,6 @@ jobs:
             - name: Install Rust stable
               uses: dtolnay/rust-toolchain@stable
 
-            - name: Add macOS targets
-              if: matrix.platform == 'macos-latest'
-              run: |
-                  rustup target add aarch64-apple-darwin
-                  rustup target add x86_64-apple-darwin
-
             - name: Install dependencies (ubuntu only)
               if: matrix.platform == 'ubuntu-latest'
               run: |
@@ -62,12 +65,6 @@ jobs:
 
             - name: Install app dependencies
               run: pnpm install
-
-            - name: Configure Tauri for Universal Binary (macOS)
-              if: matrix.platform == 'macos-latest'
-              run: |
-                  sed -i '' 's/"targets": \["dmg"\]/"targets": \["dmg"\], "macOS": {"targets": ["universal-apple-darwin"]}/' src-tauri/tauri.conf.json || echo "Failed to update tauri.conf.json"
-                  cat src-tauri/tauri.conf.json
 
             - name: Build the app
               run: pnpm run tauri build
@@ -104,14 +101,24 @@ jobs:
                   draft: false
                   prerelease: false
 
-            - name: Upload macOS Asset
+            - name: Upload macOS ARM64 Asset
               uses: actions/upload-release-asset@v1
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: ./artifacts/Ore Presence_0.1.0_aarch64.dmg
-                  asset_name: ore-presence-${{ github.ref_name }}-macos-universal.dmg
+                  asset_path: ./artifacts/Ore Presence_${{ github.ref_name }}_aarch64.dmg
+                  asset_name: ore-presence-${{ github.ref_name }}-macos-arm64.dmg
+                  asset_content_type: application/x-apple-diskimage
+
+            - name: Upload macOS Intel Asset
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: ./artifacts/Ore Presence_${{ github.ref_name }}_x64.dmg
+                  asset_name: ore-presence-${{ github.ref_name }}-macos-intel.dmg
                   asset_content_type: application/x-apple-diskimage
 
             - name: Upload Windows Asset
@@ -120,7 +127,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: ./artifacts/Ore Presence_0.1.0_x64_en-US.msi
+                  asset_path: ./artifacts/Ore Presence_${{ github.ref_name }}_x64_en-US.msi
                   asset_name: ore-presence-${{ github.ref_name }}-windows.msi
                   asset_content_type: application/x-msi
 
@@ -131,6 +138,6 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: ./artifacts/Ore Presence_0.1.0_amd64.AppImage
+                  asset_path: ./artifacts/Ore Presence_${{ github.ref_name }}_amd64.AppImage
                   asset_name: ore-presence-${{ github.ref_name }}-linux.AppImage
                   asset_content_type: application/x-appimage

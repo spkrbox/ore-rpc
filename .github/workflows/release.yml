@@ -68,15 +68,20 @@ jobs:
 
             - name: Update Tauri Config Version
               run: |
-                  VERSION="${{ github.ref_name }}"
-                  VERSION="${VERSION#v}"
+                  $VERSION="${{ github.ref_name }}"
+                  $VERSION=$VERSION.TrimStart("v")
                   echo "Setting version to $VERSION"
 
-                  sed -i.bak "s/version = \"0.1.0\"/version = \"$VERSION\"/" src-tauri/Cargo.toml
-
-                  sed -i.bak "s/\"version\": \"0.1.0\"/\"version\": \"$VERSION\"/" src-tauri/tauri.conf.json
-
-                  sed -i.bak "s/\"version\": \"0.1.0\"/\"version\": \"$VERSION\"/" package.json
+                  if ($IsWindows) {
+                    (Get-Content src-tauri/Cargo.toml) -replace 'version = "0.1.0"', "version = `"$VERSION`"" | Set-Content src-tauri/Cargo.toml
+                    (Get-Content src-tauri/tauri.conf.json) -replace '"version": "0.1.0"', "`"version`": `"$VERSION`"" | Set-Content src-tauri/tauri.conf.json
+                    (Get-Content package.json) -replace '"version": "0.1.0"', "`"version`": `"$VERSION`"" | Set-Content package.json
+                  } else {
+                    sed -i.bak "s/version = \"0.1.0\"/version = \"$VERSION\"/" src-tauri/Cargo.toml
+                    sed -i.bak "s/\"version\": \"0.1.0\"/\"version\": \"$VERSION\"/" src-tauri/tauri.conf.json
+                    sed -i.bak "s/\"version\": \"0.1.0\"/\"version\": \"$VERSION\"/" package.json
+                  }
+              shell: pwsh
 
             - name: Build the app
               run: pnpm run tauri build
@@ -114,7 +119,7 @@ jobs:
                   draft: false
                   prerelease: false
                   files: |
-                      ./artifacts/Ore Presence_${{ github.ref_name }}_aarch64.dmg
-                      ./artifacts/Ore Presence_${{ github.ref_name }}_x64.dmg
-                      ./artifacts/Ore Presence_${{ github.ref_name }}_x64_en-US.msi
-                      ./artifacts/Ore Presence_${{ github.ref_name }}_amd64.AppImage
+                      ./artifacts/ore-presence-${{ github.ref_name }}-macos-arm64.dmg
+                      ./artifacts/ore-presence-${{ github.ref_name }}-macos-intel.dmg
+                      ./artifacts/ore-presence-${{ github.ref_name }}-windows.msi
+                      ./artifacts/ore-presence-${{ github.ref_name }}-linux.AppImage

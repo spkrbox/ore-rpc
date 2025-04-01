@@ -1,0 +1,92 @@
+name: 'Release'
+on:
+    push:
+        tags:
+            - 'v*'
+    workflow_dispatch:
+
+jobs:
+    build:
+        strategy:
+            fail-fast: false
+            matrix:
+                platform: [macos-latest, windows-latest]
+                include:
+                    - platform: macos-latest
+                      output_name: Ore Presence_${{ github.ref_name }}_macos.dmg
+                      asset_path: src-tauri/target/release/bundle/dmg/*.dmg
+                      asset_name: ore-presence-${{ github.ref_name }}-macos.dmg
+                      content_type: application/x-apple-diskimage
+                    - platform: windows-latest
+                      output_name: Ore Presence_${{ github.ref_name }}_windows.msi
+                      asset_path: src-tauri/target/release/bundle/msi/*.msi
+                      asset_name: ore-presence-${{ github.ref_name }}-windows.msi
+                      content_type: application/x-msi
+
+        runs-on: ${{ matrix.platform }}
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Setup Node
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+
+            - name: Install Rust stable
+              uses: dtolnay/rust-toolchain@stable
+
+            - name: Install dependencies (ubuntu only)
+              if: matrix.platform == 'ubuntu-20.04'
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+            - name: Install app dependencies
+              run: npm install
+
+            - name: Build the app
+              run: npm run tauri build
+
+            - name: Upload artifacts to workflow
+              uses: actions/upload-artifact@v3
+              with:
+                  name: ${{ matrix.asset_name }}
+                  path: ${{ matrix.asset_path }}
+
+    create-release:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Download artifacts
+              uses: actions/download-artifact@v3
+
+            - name: Create Release
+              id: create_release
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ github.ref }}
+                  release_name: Release ${{ github.ref_name }}
+                  draft: false
+                  prerelease: false
+
+            - name: Upload macOS Asset
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: ./ore-presence-${{ github.ref_name }}-macos.dmg/Ore Presence_${{ github.ref_name }}_x64.dmg
+                  asset_name: ore-presence-${{ github.ref_name }}-macos.dmg
+                  asset_content_type: application/x-apple-diskimage
+
+            - name: Upload Windows Asset
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: ./ore-presence-${{ github.ref_name }}-windows.msi/Ore Presence_${{ github.ref_name }}_x64_en-US.msi
+                  asset_name: ore-presence-${{ github.ref_name }}-windows.msi
+                  asset_content_type: application/x-msi

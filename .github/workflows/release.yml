@@ -66,23 +66,6 @@ jobs:
             - name: Install app dependencies
               run: pnpm install
 
-            - name: Update Tauri Config Version
-              run: |
-                  $VERSION="${{ github.ref_name }}"
-                  $VERSION=$VERSION.TrimStart("v")
-                  echo "Setting version to $VERSION"
-
-                  if ($IsWindows) {
-                    (Get-Content src-tauri/Cargo.toml) -replace 'version = "0.1.0"', "version = `"$VERSION`"" | Set-Content src-tauri/Cargo.toml
-                    (Get-Content src-tauri/tauri.conf.json) -replace '"version": "0.1.0"', "`"version`": `"$VERSION`"" | Set-Content src-tauri/tauri.conf.json
-                    (Get-Content package.json) -replace '"version": "0.1.0"', "`"version`": `"$VERSION`"" | Set-Content package.json
-                  } else {
-                    sed -i.bak "s/version = \"0.1.0\"/version = \"$VERSION\"/" src-tauri/Cargo.toml
-                    sed -i.bak "s/\"version\": \"0.1.0\"/\"version\": \"$VERSION\"/" src-tauri/tauri.conf.json
-                    sed -i.bak "s/\"version\": \"0.1.0\"/\"version\": \"$VERSION\"/" package.json
-                  }
-              shell: pwsh
-
             - name: Build the app
               run: pnpm run tauri build
 
@@ -97,8 +80,6 @@ jobs:
         needs: build
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
-
             - name: Download all artifacts
               id: download
               uses: actions/download-artifact@v4
@@ -109,17 +90,26 @@ jobs:
             - name: List downloaded artifacts
               run: ls -la ./artifacts
 
+            - name: Rename artifacts for clarity
+              run: |
+                  mkdir -p ./release-assets
+                  cp "./artifacts/Ore Presence_0.1.0_aarch64.dmg" "./release-assets/ore-presence-${{ github.ref_name }}-macos-arm64.dmg"
+                  cp "./artifacts/Ore Presence_0.1.0_x64.dmg" "./release-assets/ore-presence-${{ github.ref_name }}-macos-intel.dmg"
+                  cp "./artifacts/Ore Presence_0.1.0_x64_en-US.msi" "./release-assets/ore-presence-${{ github.ref_name }}-windows.msi"
+                  cp "./artifacts/Ore Presence_0.1.0_amd64.AppImage" "./release-assets/ore-presence-${{ github.ref_name }}-linux.AppImage"
+                  ls -la ./release-assets
+
             - name: Create Release and Upload Assets
               uses: softprops/action-gh-release@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                  tag_name: ${{ github.ref_name }}
+                  files: |
+                      ./release-assets/ore-presence-${{ github.ref_name }}-macos-arm64.dmg
+                      ./release-assets/ore-presence-${{ github.ref_name }}-macos-intel.dmg
+                      ./release-assets/ore-presence-${{ github.ref_name }}-windows.msi
+                      ./release-assets/ore-presence-${{ github.ref_name }}-linux.AppImage
                   name: Release ${{ github.ref_name }}
                   draft: false
                   prerelease: false
-                  files: |
-                      ./artifacts/ore-presence-${{ github.ref_name }}-macos-arm64.dmg
-                      ./artifacts/ore-presence-${{ github.ref_name }}-macos-intel.dmg
-                      ./artifacts/ore-presence-${{ github.ref_name }}-windows.msi
-                      ./artifacts/ore-presence-${{ github.ref_name }}-linux.AppImage
+                  generate_release_notes: true
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

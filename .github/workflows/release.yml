@@ -48,17 +48,25 @@ jobs:
               run: npm run tauri build
 
             - name: Upload artifacts to workflow
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: ${{ matrix.asset_name }}
                   path: ${{ matrix.asset_path }}
+                  compression-level: 0 # Use no compression for binaries
 
     create-release:
         needs: build
         runs-on: ubuntu-latest
         steps:
-            - name: Download artifacts
-              uses: actions/download-artifact@v3
+            - name: Download all artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  pattern: '*.dmg|*.msi'
+                  merge-multiple: true
+                  path: ./artifacts
+
+            - name: List downloaded artifacts
+              run: ls -la ./artifacts
 
             - name: Create Release
               id: create_release
@@ -77,7 +85,7 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: ./ore-presence-${{ github.ref_name }}-macos.dmg/Ore Presence_${{ github.ref_name }}_x64.dmg
+                  asset_path: ./artifacts/ore-presence-${{ github.ref_name }}-macos.dmg/Ore Presence_${{ github.ref_name }}_x64.dmg
                   asset_name: ore-presence-${{ github.ref_name }}-macos.dmg
                   asset_content_type: application/x-apple-diskimage
 
@@ -87,6 +95,6 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.create_release.outputs.upload_url }}
-                  asset_path: ./ore-presence-${{ github.ref_name }}-windows.msi/Ore Presence_${{ github.ref_name }}_x64_en-US.msi
+                  asset_path: ./artifacts/ore-presence-${{ github.ref_name }}-windows.msi/Ore Presence_${{ github.ref_name }}_x64_en-US.msi
                   asset_name: ore-presence-${{ github.ref_name }}-windows.msi
                   asset_content_type: application/x-msi

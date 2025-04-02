@@ -1,6 +1,6 @@
 [package]
 name = "yuzu-presence"
-version = "0.1.12"
+version = "0.1.13"
 description = "Discord Rich Presence"
 authors = ["you"]
 edition = "2021"

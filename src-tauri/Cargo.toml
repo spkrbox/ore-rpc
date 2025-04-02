@@ -28,5 +28,6 @@ reqwest = { version = "0.11", features = ["json"] }
 tokio = { version = "1", features = ["time"] }
 discord-rich-presence = "0.2.5"
 pin-utils = "0.1.0"
+nodrop = "0.1.14"
 
 [features]

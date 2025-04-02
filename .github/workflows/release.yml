@@ -93,10 +93,10 @@ jobs:
             - name: Rename artifacts for clarity
               run: |
                   mkdir -p ./release-assets
-                  cp "./artifacts/Yuzu Presence_0.1.0_aarch64.dmg" "./release-assets/yuzu-presence-${{ github.ref_name }}-macos-arm64.dmg"
-                  cp "./artifacts/Yuzu Presence_0.1.0_x64.dmg" "./release-assets/yuzu-presence-${{ github.ref_name }}-macos-intel.dmg"
-                  cp "./artifacts/Yuzu Presence_0.1.0_x64_en-US.msi" "./release-assets/yuzu-presence-${{ github.ref_name }}-windows.msi"
-                  cp "./artifacts/Yuzu Presence_0.1.0_amd64.AppImage" "./release-assets/yuzu-presence-${{ github.ref_name }}-linux.AppImage"
+                  cp "./artifacts/Yuzu Presence_${{ github.ref_name }}_aarch64.dmg" "./release-assets/yuzu-presence-${{ github.ref_name }}-macos-arm64.dmg"
+                  cp "./artifacts/Yuzu Presence_${{ github.ref_name }}_x64.dmg" "./release-assets/yuzu-presence-${{ github.ref_name }}-macos-intel.dmg"
+                  cp "./artifacts/Yuzu Presence_${{ github.ref_name }}_x64_en-US.msi" "./release-assets/yuzu-presence-${{ github.ref_name }}-windows.msi"
+                  cp "./artifacts/Yuzu Presence_${{ github.ref_name }}_amd64.AppImage" "./release-assets/yuzu-presence-${{ github.ref_name }}-linux.AppImage"
                   ls -la ./release-assets
 
             - name: Create Release and Upload Assets

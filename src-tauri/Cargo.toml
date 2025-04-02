@@ -1,5 +1,5 @@
 [package]
-name = "ore-presence"
+name = "yuzu-presence"
 version = "0.1.0"
 description = "Discord Rich Presence"
 authors = ["you"]

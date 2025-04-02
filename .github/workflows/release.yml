@@ -16,27 +16,27 @@ jobs:
                 platform: [macos-14, macos-13, windows-latest, ubuntu-latest]
                 include:
                     - platform: macos-14
-                      output_name: Ore Presence_${{ github.ref_name }}_macos_arm64.dmg
+                      output_name: Yuzu Presence_${{ github.ref_name }}_macos_arm64.dmg
                       asset_path: src-tauri/target/release/bundle/dmg/*.dmg
-                      asset_name: ore-presence-${{ github.ref_name }}-macos-arm64.dmg
+                      asset_name: yuzu-presence-${{ github.ref_name }}-macos-arm64.dmg
                       content_type: application/x-apple-diskimage
                       arch: arm64
                     - platform: macos-13
-                      output_name: Ore Presence_${{ github.ref_name }}_macos_x64.dmg
+                      output_name: Yuzu Presence_${{ github.ref_name }}_macos_x64.dmg
                       asset_path: src-tauri/target/release/bundle/dmg/*.dmg
-                      asset_name: ore-presence-${{ github.ref_name }}-macos-intel.dmg
+                      asset_name: yuzu-presence-${{ github.ref_name }}-macos-intel.dmg
                       content_type: application/x-apple-diskimage
                       arch: x64
                     - platform: windows-latest
-                      output_name: Ore Presence_${{ github.ref_name }}_windows.msi
+                      output_name: Yuzu Presence_${{ github.ref_name }}_windows.msi
                       asset_path: src-tauri/target/release/bundle/msi/*.msi
-                      asset_name: ore-presence-${{ github.ref_name }}-windows.msi
+                      asset_name: yuzu-presence-${{ github.ref_name }}-windows.msi
                       content_type: application/x-msi
                       arch: x64
                     - platform: ubuntu-latest
-                      output_name: Ore Presence_${{ github.ref_name }}_linux.AppImage
+                      output_name: Yuzu Presence_${{ github.ref_name }}_linux.AppImage
                       asset_path: src-tauri/target/release/bundle/appimage/*.AppImage
-                      asset_name: ore-presence-${{ github.ref_name }}-linux.AppImage
+                      asset_name: yuzu-presence-${{ github.ref_name }}-linux.AppImage
                       content_type: application/x-appimage
                       arch: x64
 
@@ -93,20 +93,20 @@ jobs:
             - name: Rename artifacts for clarity
               run: |
                   mkdir -p ./release-assets
-                  cp "./artifacts/Ore Presence_0.1.0_aarch64.dmg" "./release-assets/ore-presence-${{ github.ref_name }}-macos-arm64.dmg"
-                  cp "./artifacts/Ore Presence_0.1.0_x64.dmg" "./release-assets/ore-presence-${{ github.ref_name }}-macos-intel.dmg"
-                  cp "./artifacts/Ore Presence_0.1.0_x64_en-US.msi" "./release-assets/ore-presence-${{ github.ref_name }}-windows.msi"
-                  cp "./artifacts/Ore Presence_0.1.0_amd64.AppImage" "./release-assets/ore-presence-${{ github.ref_name }}-linux.AppImage"
+                  cp "./artifacts/Yuzu Presence_0.1.0_aarch64.dmg" "./release-assets/yuzu-presence-${{ github.ref_name }}-macos-arm64.dmg"
+                  cp "./artifacts/Yuzu Presence_0.1.0_x64.dmg" "./release-assets/yuzu-presence-${{ github.ref_name }}-macos-intel.dmg"
+                  cp "./artifacts/Yuzu Presence_0.1.0_x64_en-US.msi" "./release-assets/yuzu-presence-${{ github.ref_name }}-windows.msi"
+                  cp "./artifacts/Yuzu Presence_0.1.0_amd64.AppImage" "./release-assets/yuzu-presence-${{ github.ref_name }}-linux.AppImage"
                   ls -la ./release-assets
 
             - name: Create Release and Upload Assets
               uses: softprops/action-gh-release@v1
               with:
                   files: |
-                      ./release-assets/ore-presence-${{ github.ref_name }}-macos-arm64.dmg
-                      ./release-assets/ore-presence-${{ github.ref_name }}-macos-intel.dmg
-                      ./release-assets/ore-presence-${{ github.ref_name }}-windows.msi
-                      ./release-assets/ore-presence-${{ github.ref_name }}-linux.AppImage
+                      ./release-assets/yuzu-presence-${{ github.ref_name }}-macos-arm64.dmg
+                      ./release-assets/yuzu-presence-${{ github.ref_name }}-macos-intel.dmg
+                      ./release-assets/yuzu-presence-${{ github.ref_name }}-windows.msi
+                      ./release-assets/yuzu-presence-${{ github.ref_name }}-linux.AppImage
                   name: Release ${{ github.ref_name }}
                   draft: false
                   prerelease: false

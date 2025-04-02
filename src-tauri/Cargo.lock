@@ -2585,22 +2585,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ore-presence"
-version = "0.1.0"
-dependencies = [
- "discord-rich-presence",
- "reqwest 0.11.27",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-opener",
- "tauri-plugin-shell",
- "tauri-plugin-store",
- "tokio",
-]
-
-[[package]]
 name = "os_pipe"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5448,6 +5432,22 @@ dependencies = [
  "quote",
  "syn 2.0.100",
  "synstructure",
+]
+
+[[package]]
+name = "yuzu-presence"
+version = "0.1.0"
+dependencies = [
+ "discord-rich-presence",
+ "reqwest 0.11.27",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-opener",
+ "tauri-plugin-shell",
+ "tauri-plugin-store",
+ "tokio",
 ]
 
 [[package]]

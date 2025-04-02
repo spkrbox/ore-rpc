@@ -9,7 +9,7 @@ interface MainPageProps {
 export const MainPage = ({ watching, onSettingsClick }: MainPageProps) => (
     <div className='main-page'>
         <div className='header'>
-            <h1>Ore Presence</h1>
+            <h1>Yuzu Presence</h1>
             <button className='settings-btn' onClick={onSettingsClick}>
                 ⚙️ Settings
             </button>

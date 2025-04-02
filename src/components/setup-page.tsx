@@ -7,7 +7,7 @@ interface SetupPageProps {
 export const SetupPage = ({ userId, onUserIdChange, onSave }: SetupPageProps) => (
     <div className='setup-page'>
         <div className='header'>
-            <h1>Ore Presence</h1>
+            <h1>Yuzu Presence</h1>
         </div>
         <p>Enter your User ID:</p>
         <div className='row'>

@@ -1,8 +1,8 @@
 {
     "$schema": "https://schema.tauri.app/config/2",
-    "productName": "Ore Presence",
+    "productName": "Yuzu Presence",
     "version": "0.1.0",
-    "identifier": "com.ore-presence.app",
+    "identifier": "com.yuzu-presence.app",
     "build": {
         "beforeDevCommand": "pnpm dev",
         "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
     "app": {
         "windows": [
             {
-                "title": "Ore Presence",
+                "title": "Yuzu Presence",
                 "width": 300,
                 "height": 420,
                 "resizable": false,

@@ -5436,7 +5436,7 @@ dependencies = [
 
 [[package]]
 name = "yuzu-presence"
-version = "0.1.15"
+version = "0.1.16"
 dependencies = [
  "discord-rich-presence",
  "nodrop",

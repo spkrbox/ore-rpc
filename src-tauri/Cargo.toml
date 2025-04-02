@@ -29,5 +29,6 @@ tokio = { version = "1", features = ["time"] }
 discord-rich-presence = "0.2.5"
 pin-utils = "0.1.0"
 nodrop = "0.1.14"
+getrandom_package = "0.1.20"
 
 [features]

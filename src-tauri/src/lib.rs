@@ -59,10 +59,10 @@ struct DiscordRpcState {
 
 const USER_ID_KEY: &str = "userId";
 const SETTINGS_FILE: &str = "settings.json";
-const API_BASE_URL: &str = "https://o.jwd.gg/api/users";
+const API_BASE_URL: &str = "https://yuzu.jwd.gg/api/users";
 const POLL_INTERVAL: Duration = Duration::from_secs(15);
 const DISCORD_CLIENT_ID: &str = "1213360640580653166";
-const WATCH_URL_BASE: &str = "https://o.jwd.gg/watch";
+const WATCH_URL_BASE: &str = "https://yuzu.jwd.gg/watch";
 
 fn get_settings_path<R: Runtime>(app: &AppHandle<R>) -> Result<PathBuf, String> {
     let app_dir = app.path().app_data_dir()
